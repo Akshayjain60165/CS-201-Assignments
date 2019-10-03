@@ -3,6 +3,8 @@
     Author: G Pradyumn
     2018csb1088
 */
+
+//This assignment was not finished due to lack of time.
 #include<iostream>
 #include<math.h>
 
