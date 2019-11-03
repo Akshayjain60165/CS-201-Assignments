@@ -9,16 +9,14 @@ using namespace std;
 
 const int MOD=1e9+7;
 
-/*
-      See this video for reference -> https://www.youtube.com/watch?v=rA1ZevamGDc
-*/
-
 int main(){
+    /*freopen("t1.txt","r",stdin);
+    freopen("out1.txt","w",stdout);*/
     int n;
     cin>>n;
-    long long val[n]={},h[n]={};
+    long long val[n+1]={},h[n]={};
     val[0]=1;
-    for(int i=1;i<n;i++){
+    for(int i=1;i<=n;i++){
         val[i]=(val[i-1]*7)%MOD;
     }
     string s;
