@@ -7,8 +7,6 @@
 
 using namespace std;
 
-//Till now insert,delete and search1 work.
-
 struct node{
     char c;
     bool ended;
@@ -156,6 +154,24 @@ class trie{
         return 0;
     }
 
+    int max(int a,int b){
+        if(a>b){
+            return a;
+        }
+        return b;
+    }
+
+    int search2(string s,int ind,node* curr){
+        if(curr==NULL || ind==s.size() || (s[ind]!=curr->c && s[ind]!='?')){
+            return 0;
+        }
+        int u=curr->num;
+        if(s[ind]=='$'){
+            u=0;
+        }
+        return u+search2(s,ind+1,curr->left)+search2(s,ind+1,curr->right);
+    }
+
 };
 
 /*
@@ -163,6 +179,7 @@ class trie{
 */
 
 int main(){
+    freopen("t1.txt","r",stdin);
     int t;
     cin>>t;
     trie prefix,word;
@@ -170,13 +187,12 @@ int main(){
         int choice;
         string s;
         cin>>choice>>s;
-        //cout<<word.search(s,0,word.getroot())<<endl;
         if(choice==1){
-            word.insert_node(s);
-            for(int i=0;i<s.size();i++){
-                prefix.insert_pre(s,i);
+            if(word.insert_node(s)==1){
+                for(int i=0;i<s.size();i++){
+                    prefix.insert_pre(s,i);
+                }
             }
-            //prefix.preorder(prefix.getroot());
         }
         else if(choice==2){
             s='$'+s;
@@ -185,7 +201,6 @@ int main(){
                     s[i-1]='$';
                     prefix.delete_pre_node(s,i-1);
                 }
-                //prefix.preorder(prefix.getroot());
             }
         }
         else if(choice==3){
@@ -193,8 +208,10 @@ int main(){
             cout<<prefix.search1(s,0,prefix.getroot())<<endl;
         }
         else if(choice==4){
-            
+            s='$'+s;
+            cout<<word.search2(s,0,word.getroot())<<endl;
         }
     }
+    //word.preorder(word.getroot());
     return 0;
 }
