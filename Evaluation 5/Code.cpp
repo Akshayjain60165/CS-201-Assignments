@@ -104,16 +104,16 @@ class min_heap{
     }
 };
 
-int dijkstra(int n,int m,float g,int k){
+int dijkstra(int n,int m,double g,int k){
     int adj[n][n];
-    float prob[n][n];
+    double prob[n][n];
     for(int i=0;i<n;i++){
         for(int j=0;j<n;j++){
             adj[i][j]=-1;
         }
     }
     for(int i=0;i<m;i++){
-        float p,val;
+        double p,val;
         int s,d,c;
         cin>>s>>d>>p>>c;
         val=-log10(1.0-p);
@@ -123,10 +123,11 @@ int dijkstra(int n,int m,float g,int k){
     }
     min_heap h(m);
     h.insert(0,0);
-    float l[n],used[n];
+    double l[n];
+    int used[n];
     for(int i=0;i<n;i++){
         l[i]=1e5;
-        used[i]=1e5;
+        used[i]=0;
     }
     l[0]=0;//probability of length till now
     used[0]=0;//number of red edges used
@@ -135,7 +136,7 @@ int dijkstra(int n,int m,float g,int k){
     while(!h.empty() && l[n-1]>g){
         edge a=h.extract_min();
         int u=a.ind;
-        int pr=a.p;
+        double pr=a.p;
         for(int i=0;i<n;i++){
             if(adj[u][i]!=-1 && vis[i]==0){
                 if(l[i]>pr+prob[u][i] && used[u]+adj[u][i]<=k){
