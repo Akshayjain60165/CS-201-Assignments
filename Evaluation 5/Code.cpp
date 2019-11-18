@@ -190,12 +190,12 @@ int dijkstra(int n,int m,double g,int k){
             r=r->next;
         }
     }
-    for(int i=0;i<n;i++){
+    /*for(int i=0;i<n;i++){
         for(int j=0;j<=k;j++){
             cout<<vis[i][j]<<" ";
         }
         cout<<endl;
-    }
+    }*/
     for(int i=0;i<k+1;++i){
         if(vis[n-1][i]<=g && vis[n-1][i]!=-1){
             return 1;
@@ -205,8 +205,8 @@ int dijkstra(int n,int m,double g,int k){
 }
 
 int main(){
-    freopen("input.txt","r",stdin);
-    freopen("out.txt","w",stdout);
+    //freopen("input.txt","r",stdin);
+    //freopen("out.txt","w",stdout);
     double g;
     int k,n,m;
     cin>>g>>k>>n>>m;
