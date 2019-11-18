@@ -15,8 +15,11 @@ using namespace std;
 */
 
 struct edge{
-    float p;
-    int ind;
+    double p;
+    int ind,nr;
+    edge(){
+        nr=0;
+    }
 };
 
 class min_heap{
@@ -43,18 +46,19 @@ class min_heap{
         return 2*i+1;
     }
 
-    void swap(float &a,float &b){
-        float c=a;
+    void swap(edge &a,edge &b){
+        edge c=a;
         a=b;
         b=c;
     }
 
-    void insert(float val,int index){
+    void insert(double val,int index,int ai){
         int ind1=n;
         arr[ind1].p=val;
         arr[ind1].ind=index;
+        arr[ind1].nr=ai;
         while(ind1>1 && arr[ind1].p+eps<arr[parent(ind1)].p){
-            swap(arr[ind1].p,arr[parent(ind1)].p);
+            swap(arr[ind1],arr[parent(ind1)]);
             ind1=parent(ind1);
         }
         ++n;
@@ -69,7 +73,7 @@ class min_heap{
             i=r_child(ind);
         }
         if(i!=ind){
-            swap(arr[ind].p,arr[i].p);
+            swap(arr[ind],arr[i]);
             heapify(i);
         }
     }
@@ -79,6 +83,7 @@ class min_heap{
             edge a;
             a.ind=-1;
             a.p=0;
+            a.nr=1e5;
             return a;
         }
         if(n==2){
@@ -104,62 +109,101 @@ class min_heap{
     }
 };
 
-int dijkstra(int n,int m,double g,int k){
-    int adj[n][n];
-    double prob[n][n];
-    for(int i=0;i<n;i++){
-        for(int j=0;j<n;j++){
-            adj[i][j]=-1;
-        }
+struct pt{
+    double p;
+    int dest,col;
+    pt *next;
+    pt(){
+         next=NULL;
+     }
+};
+
+class list{
+    pt *root;
+    int s;
+    public:
+    list(){
+        root=NULL;
+        s=0;
     }
+
+    pt *getroot(){
+        return root;
+    }
+
+    int size(){
+        return s;
+    }
+
+    void insert(int d,double prob,int c){
+        pt *temp=new pt;
+        temp->dest=d;
+        temp->col=c;
+        temp->p=prob;
+        temp->next=root;
+        root=temp;
+        ++s;
+    }
+};
+
+int dijkstra(int n,int m,double g,int k){
+    list adj[n];
     for(int i=0;i<m;i++){
         double p,val;
         int s,d,c;
         cin>>s>>d>>p>>c;
         val=-log10(1.0-p);
         --s,--d;
-        prob[s][d]=prob[d][s]=val;
-        adj[s][d]=adj[d][s]=c;
+        adj[s].insert(d,val,c);
+        adj[d].insert(s,val,c);
     }
     min_heap h(m);
-    h.insert(0,0);
-    double l[n];
-    int used[n];
+    h.insert(0,0,0);
+    double *vis[n];//visited[node number][number of red edges used till now]=-log10(max probability to reach this node)
+    //we need to keep vis <=g and second index <=k for an answer;
     for(int i=0;i<n;i++){
-        l[i]=1e5;
-        used[i]=0;
+        vis[i]=new double[k+1]; 
+        for(int j=0;j<=k;j++){
+            vis[i][j]=-1;
+        }
     }
-    l[0]=0;//probability of length till now
-    used[0]=0;//number of red edges used
-    int vis[n]={};
-    vis[0]=1;
-    while(!h.empty() && l[n-1]>g){
+    vis[0][0]=0;
+    while(!h.empty()){
         edge a=h.extract_min();
         int u=a.ind;
         double pr=a.p;
-        for(int i=0;i<n;i++){
-            if(adj[u][i]!=-1 && vis[i]==0){
-                if(l[i]>pr+prob[u][i] && used[u]+adj[u][i]<=k){
-                    l[i]=pr+prob[u][i];
-                    used[i]=used[u]+adj[u][i];
-                    h.insert(l[i],i);
-                    vis[i]=1;
+        int nr=a.nr;
+        pt *r=adj[u].getroot();
+        for(int i=0;i<adj[u].size();++i){
+            if(nr+r->col<=k){
+                if(vis[r->dest][nr+r->col]==-1 || vis[u][nr]+r->p<vis[r->dest][nr+r->col]){
+                    /*if(nr+r->col==k and r->dest==0){
+                        cout<<u<<" "<<vis[u][nr]<<" "<<nr<<endl;
+                    }*/
+                    vis[r->dest][nr+r->col]=vis[u][nr]+r->p;
+                    h.insert(r->p,r->dest,nr+r->col);
                 }
-            }
-        }        
-        for(int i=0;i<n;i++){
-            cout<<l[i]<<" ";
+            }   
+            r=r->next;
+        }
+    }
+    /*for(int i=0;i<n;i++){
+        for(int j=0;j<=k;j++){
+            cout<<vis[i][j]<<" ";
         }
         cout<<endl;
-    }
-    if(l[n-1]<=g){
-        return 1;
+    }*/
+    for(int i=0;i<k+1;++i){
+        if(vis[n-1][i]<=g && vis[n-1][i]!=-1){
+            return 1;
+        }
     }
     return 0;
 }
 
 int main(){
-    float g;
+    freopen("input.txt","r",stdin);
+    double g;
     int k,n,m;
     cin>>g>>k>>n>>m;
     if(dijkstra(n,m,g,k)){
