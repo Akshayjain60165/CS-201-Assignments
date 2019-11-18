@@ -9,6 +9,8 @@
 
 using namespace std;
 
+const int MAX=3e5+5;
+
 /*
     We make a min heap in which we insert all the edges according to their probabilities.
     heap stores -log10(total probability to reach this node), vertex number and total red edges used till now.
@@ -108,9 +110,11 @@ class min_heap{
         return false;
     }
 };
+
 /*
 list is used to implement adjacency list of a node.
 */
+
 struct pt{
     double p;
     int dest,col;
@@ -159,7 +163,7 @@ int dijkstra(int n,int m,double g,int k){
         adj[s].insert(d,val,c);
         adj[d].insert(s,val,c);
     }
-    min_heap h(m);
+    min_heap h(MAX);
     h.insert(0,0,0);
     double *vis[n];//visited[node number][number of red edges used till now]=-log10(max probability to reach this node)
     //we need to keep vis <=g and second index <=k for an answer;
@@ -169,29 +173,29 @@ int dijkstra(int n,int m,double g,int k){
             vis[i][j]=-1;
         }
     }
-    vis[0][0]=0;
     while(!h.empty()){
         edge a=h.extract_min();
         int u=a.ind;
         double pr=a.p;
         int nr=a.nr;
         pt *r=adj[u].getroot();
+        if(vis[u][nr]!=-1){
+            continue;
+        }
+        vis[u][nr]=pr;
         for(int i=0;i<adj[u].size();++i){
             if(nr+r->col<=k){
-                if(vis[r->dest][nr+r->col]==-1 || vis[u][nr]+r->p<vis[r->dest][nr+r->col]){
-                    vis[r->dest][nr+r->col]=vis[u][nr]+r->p;
-                    h.insert(vis[u][nr]+r->p,r->dest,nr+r->col);
-                }
+                h.insert(pr+r->p,r->dest,nr+r->col);
             }   
             r=r->next;
         }
     }
-    /*for(int i=0;i<n;i++){
+    for(int i=0;i<n;i++){
         for(int j=0;j<=k;j++){
             cout<<vis[i][j]<<" ";
         }
         cout<<endl;
-    }*/
+    }
     for(int i=0;i<k+1;++i){
         if(vis[n-1][i]<=g && vis[n-1][i]!=-1){
             return 1;
@@ -201,8 +205,8 @@ int dijkstra(int n,int m,double g,int k){
 }
 
 int main(){
-    //freopen("input.txt","r",stdin);
-    //freopen("out.txt","w",stdout);
+    freopen("input.txt","r",stdin);
+    freopen("out.txt","w",stdout);
     double g;
     int k,n,m;
     cin>>g>>k>>n>>m;
