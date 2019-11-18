@@ -11,7 +11,7 @@ using namespace std;
 
 /*
     We make a min heap in which we insert all the edges according to their probabilities.
-    heap stores -log10(probability of success) and vertex number.
+    heap stores -log10(total probability to reach this node), vertex number and total red edges used till now.
 */
 
 struct edge{
@@ -108,7 +108,9 @@ class min_heap{
         return false;
     }
 };
-
+/*
+list is used to implement adjacency list of a node.
+*/
 struct pt{
     double p;
     int dest,col;
@@ -177,11 +179,8 @@ int dijkstra(int n,int m,double g,int k){
         for(int i=0;i<adj[u].size();++i){
             if(nr+r->col<=k){
                 if(vis[r->dest][nr+r->col]==-1 || vis[u][nr]+r->p<vis[r->dest][nr+r->col]){
-                    /*if(nr+r->col==k and r->dest==0){
-                        cout<<u<<" "<<vis[u][nr]<<" "<<nr<<endl;
-                    }*/
                     vis[r->dest][nr+r->col]=vis[u][nr]+r->p;
-                    h.insert(r->p,r->dest,nr+r->col);
+                    h.insert(vis[u][nr]+r->p,r->dest,nr+r->col);
                 }
             }   
             r=r->next;
@@ -202,7 +201,8 @@ int dijkstra(int n,int m,double g,int k){
 }
 
 int main(){
-    freopen("input.txt","r",stdin);
+    //freopen("input.txt","r",stdin);
+    //freopen("out.txt","w",stdout);
     double g;
     int k,n,m;
     cin>>g>>k>>n>>m;
